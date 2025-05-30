@@ -1,6 +1,9 @@
 from typing import List
+# Importa a classe PersonagemEmoji do módulo jogador
+from jogo.entidades.jogador import PersonagemEmoji
 
-class Monstro:
+
+class MonstroEmoji:  # Renomeado de Monstro
     def __init__(self, x: int, y: int, simbolo: str, hp: int, ataque: int):
         self.x: int = x
         self.y: int = y
@@ -8,13 +11,12 @@ class Monstro:
         self.hp: int = hp
         self.ataque: int = ataque
 
-    def mover_aleatoriamente(self, mapa, jogador, outros_monstros: List['Monstro']) -> None:
+    def mover_aleatoriamente(self, mapa, jogador: PersonagemEmoji, outros_monstros: List['MonstroEmoji']) -> None:
         """Tenta mover o monstro aleatoriamente para uma casa adjacente válida."""
         import random
 
-        # Tenta até 8 direções (incluindo permanecer parado se todas falharem)
         tentativas_direcao = [
-            (0, -1), (0, 1), (-1, 0), (1, 0), # Cardeais
+            (0, -1), (0, 1), (-1, 0), (1, 0),  # Cardeais
             (-1, -1), (-1, 1), (1, -1), (1, 1)  # Diagonais
         ]
         random.shuffle(tentativas_direcao)
@@ -38,7 +40,7 @@ class Monstro:
             # 4. Verifica se a posição está ocupada por outro monstro
             ocupado_por_outro_monstro = False
             for outro_monstro in outros_monstros:
-                if outro_monstro is self: # Não verifica colisão consigo mesmo
+                if outro_monstro is self:  # Não verifica colisão consigo mesmo
                     continue
                 if outro_monstro.x == nova_x and outro_monstro.y == nova_y:
                     ocupado_por_outro_monstro = True
@@ -49,13 +51,10 @@ class Monstro:
             # Se todas as verificações passaram, move o monstro
             self.x = nova_x
             self.y = nova_y
-            # print(f"{self.simbolo} moveu-se para ({self.x}, {self.y})") # Debug
-            return # Movido com sucesso
-
-        # Se nenhuma direção válida foi encontrada, o monstro permanece parado
-        # print(f"{self.simbolo} não pôde se mover.") # Debug
+            return  # Movido com sucesso
 
 
-class Rato(Monstro):
+class RatoEmoji(MonstroEmoji):  # Renomeado de Rato e herda de MonstroEmoji
     def __init__(self, x: int, y: int):
-        super().__init__(x=x, y=y, simbolo='r', hp=5, ataque=2)
+        # Alterado o símbolo para o emoji de rato e garante herança de MonstroEmoji
+        super().__init__(x=x, y=y, simbolo='🐀', hp=5, ataque=2)
