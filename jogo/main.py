@@ -1,8 +1,8 @@
-from jogo.core.motor_jogo import MotorJogo
+from jogo.core.motor_jogo import MotorJogoEmoji # Atualizado de MotorJogo
 
 def main() -> None:
     """Função principal para iniciar o jogo."""
-    motor = MotorJogo()
+    motor = MotorJogoEmoji() # Atualizado de MotorJogo
     motor.executar()
 
 if __name__ == "__main__":

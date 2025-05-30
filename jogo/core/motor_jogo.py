@@ -1,23 +1,22 @@
-import random # Adicionado para movimento aleatório do monstro
-from jogo.mapa.mapa import Mapa
-from jogo.entidades.jogador import Jogador
-from jogo.entidades.monstro import Monstro, Rato # Importar Rato
-from typing import List
+import random
+from jogo.mapa.mapa import MapaEmoji # Atualizado
+from jogo.entidades.jogador import PersonagemEmoji # Atualizado
+from jogo.entidades.monstro import MonstroEmoji, RatoEmoji # Atualizado
+from typing import List, Optional
 
-class MotorJogo:
+class MotorJogoEmoji: # Renomeado
     def __init__(self):
-        self.mapa: Mapa = Mapa()
-        self.jogador: Jogador = Jogador(x=1, y=1) # Posição inicial do jogador
-        self.monstros: List[Monstro] = [] # Lista para armazenar monstros
+        self.mapa: MapaEmoji = MapaEmoji() # Atualizado
+        self.jogador: PersonagemEmoji = PersonagemEmoji(x=1, y=1) # Atualizado
+        self.monstros: List[MonstroEmoji] = [] # Atualizado
 
         # Instanciar monstros e adicioná-los à lista
-        rato1 = Rato(x=5, y=5)
-        rato2 = Rato(x=7, y=7)
+        rato1 = RatoEmoji(x=5, y=5) # Atualizado
+        rato2 = RatoEmoji(x=7, y=7) # Atualizado
         self.monstros.append(rato1)
         self.monstros.append(rato2)
 
-    def _get_monstro_em(self, x: int, y: int) -> Monstro | None:
-        """Retorna o monstro na posição (x,y) ou None se não houver."""
+    def _get_monstro_em(self, x: int, y: int) -> Optional[MonstroEmoji]:
         for monstro in self.monstros:
             if monstro.x == x and monstro.y == y:
                 return monstro
@@ -32,49 +31,45 @@ class MotorJogo:
             if monstro_na_posicao is None:
                 self.jogador.mover(dx, dy)
             else:
-                # Agora, em vez de apenas bloquear, informamos que pode atacar
+                # Atualizado com Emoji do monstro
                 print(f"Um {monstro_na_posicao.simbolo} bloqueia o caminho! Use 'x' para atacar.")
 
     def tentar_atacar(self) -> None:
-        """Tenta atacar um monstro adjacente."""
         atacou_neste_turno = False
-        # Itera sobre as 8 posições adjacentes (incluindo diagonais)
-        for dy_adj in range(-1, 2): # Renomeado para evitar conflito com dx, dy de mover_jogador
-            for dx_adj in range(-1, 2): # Renomeado para evitar conflito
-                if dx_adj == 0 and dy_adj == 0: # Pula a própria posição do jogador
+        for dy_adj in range(-1, 2):
+            for dx_adj in range(-1, 2):
+                if dx_adj == 0 and dy_adj == 0:
                     continue
-
                 adj_x: int = self.jogador.x + dx_adj
                 adj_y: int = self.jogador.y + dy_adj
-                
                 monstro_encontrado = self._get_monstro_em(adj_x, adj_y)
 
                 if monstro_encontrado:
+                    # Atualizado com Emojis
+                    print(f"Você {self.jogador.ataque_emoji} ataca o {monstro_encontrado.simbolo} causando {self.jogador.ataque} de dano!")
                     monstro_encontrado.hp -= self.jogador.ataque
-                    print(f"Você ataca o {monstro_encontrado.simbolo} causando {self.jogador.ataque} de dano!")
                     
                     if monstro_encontrado.hp <= 0:
-                        print(f"O {monstro_encontrado.simbolo} morreu!")
+                        # Atualizado com Emoji
+                        print(f"O {monstro_encontrado.simbolo} morreu! 💀")
                         self.monstros.remove(monstro_encontrado)
                     
                     atacou_neste_turno = True
-                    return # Ataca apenas um monstro por turno
+                    return 
         
         if not atacou_neste_turno:
             print("Nada para atacar aqui.")
 
     def turno_dos_monstros(self) -> bool:
-        """Processa o turno de cada monstro. Retorna False se o jogador morrer."""
-        for monstro in list(self.monstros): # Itera sobre uma cópia da lista
-            if monstro.hp <=0: # Monstro pode ter morrido no mesmo turno (ex: ataque do jogador)
-                if monstro in self.monstros: # Garante que não foi removido
+        for monstro in list(self.monstros): 
+            if monstro.hp <=0: 
+                if monstro in self.monstros: 
                      self.monstros.remove(monstro)
                 continue
 
-            # Verifica se o jogador está adjacente ao monstro
             jogador_adjacente = False
-            for dy_adj in range(-1, 2): # Renomeado
-                for dx_adj in range(-1, 2): # Renomeado
+            for dy_adj in range(-1, 2): 
+                for dx_adj in range(-1, 2): 
                     if dx_adj == 0 and dy_adj == 0:
                         continue
                     if self.jogador.x == monstro.x + dx_adj and self.jogador.y == monstro.y + dy_adj:
@@ -84,44 +79,42 @@ class MotorJogo:
                     break
             
             if jogador_adjacente:
+                # Atualizado com Emojis
+                print(f"O {monstro.simbolo} ⚔️  ataca você {self.jogador.simbolo} causando {monstro.ataque} de dano!")
                 self.jogador.hp -= monstro.ataque
-                print(f"O {monstro.simbolo} ataca você causando {monstro.ataque} de dano!")
                 if self.jogador.hp <= 0:
-                    print("Você morreu! Fim de Jogo.") # Mensagem aqui
-                    return False # Jogador morreu
+                    # Atualizado com Emojis
+                    print(f"Você {self.jogador.simbolo} morreu! 💀 Fim de Jogo.")
+                    return False 
             else:
-                # Movimento aleatório do monstro (Bônus)
-                # Passa o mapa, o jogador e a lista de outros monstros para verificação de colisão
                 monstro.mover_aleatoriamente(self.mapa, self.jogador, self.monstros)
-        return True # Jogador continua vivo
+        return True 
 
 
     def renderizar(self) -> None:
-        # Limpa a tela (simplesmente imprime muitas linhas em branco)
-        print("\n" * 30)
+        print("\n" * 30) 
 
-        # Renderiza o mapa
         for y, linha in enumerate(self.mapa.tiles):
             linha_renderizada: str = ""
             for x, tile in enumerate(linha):
-                # Verifica se há um monstro nesta posição
                 monstro_na_posicao = self._get_monstro_em(x,y)
 
                 if self.jogador.x == x and self.jogador.y == y:
-                    linha_renderizada += self.jogador.simbolo
+                    linha_renderizada += self.jogador.simbolo + " " # Adicionado espaço
                 elif monstro_na_posicao:
-                    linha_renderizada += monstro_na_posicao.simbolo
+                    linha_renderizada += monstro_na_posicao.simbolo + " " # Adicionado espaço
                 else:
-                    linha_renderizada += tile
+                    linha_renderizada += tile + " " # Adicionado espaço
             print(linha_renderizada)
 
-        # Informações adicionais
-        print(f"\nJogador HP: {self.jogador.hp} Ataque: {self.jogador.ataque}")
+        # Atualizado com Emojis e atributos de PersonagemEmoji
+        print(f"\nJogador {self.jogador.simbolo} {self.jogador.hp_emoji} HP: {self.jogador.hp} {self.jogador.ataque_emoji} Ataque: {self.jogador.ataque}")
         for i, monstro in enumerate(self.monstros):
-            print(f"Monstro {i+1} ({monstro.simbolo}): HP {monstro.hp} Ataque: {monstro.ataque} @ ({monstro.x},{monstro.y})")
+            # Atualizado com Emojis
+            print(f"Monstro {monstro.simbolo} ❤️ HP: {monstro.hp} ⚔️ Ataque: {monstro.ataque} @ ({monstro.x},{monstro.y})")
 
         print(f"\nPosição do Jogador: ({self.jogador.x}, {self.jogador.y})")
-        print("Use 'w', 'a', 's', 'd' para mover, 'q' para sair.")
+        print("Use 'w', 'a', 's', 'd' para mover, 'x' para atacar, 'q' para sair.")
 
     def executar(self) -> None:
         rodando: bool = True
@@ -139,24 +132,22 @@ class MotorJogo:
                 self.mover_jogador(-1, 0)
             elif comando == 'd':
                 self.mover_jogador(1, 0)
-            elif comando == 'x': # Novo comando para atacar
+            elif comando == 'x': 
                 self.tentar_atacar()
-            elif comando == '': # Permite renderizar novamente ao pressionar Enter
+            elif comando == '': 
                 pass
             else:
                 print("Comando inválido!")
 
-            if self.jogador.hp <= 0:
-                # Esta verificação é para o caso do jogador morrer por alguma ação própria (raro neste contexto)
-                # A morte principal pelo ataque dos monstros é verificada após turno_dos_monstros
-                print("Você morreu! Fim de Jogo.")
+            if self.jogador.hp <= 0 and rodando: # Verifica se o jogador morreu e o jogo ainda estava rodando
+                # A mensagem de morte já é impressa em turno_dos_monstros ou tentar_atacar (se for o caso)
+                # Garantir que o jogo pare aqui.
                 rodando = False
-                # Não precisa de 'continue' aqui pois o loop vai parar
+                continue # Pula o turno dos monstros se o jogador morreu na sua própria ação ou ataque
 
-            if rodando: # Só executa o turno dos monstros se o jogo ainda estiver rodando
+            if rodando: 
                 jogador_ainda_vivo = self.turno_dos_monstros()
                 if not jogador_ainda_vivo:
-                    # A mensagem "Você morreu! Fim de Jogo." já foi impressa por turno_dos_monstros
                     rodando = False
 
         print("Jogo encerrado.")
